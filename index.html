@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Fix 1: remove maximum-scale=1.0 and user-scalable=no so zooming is never disabled (WCAG 1.4.4) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBTAN Classic — Study Break Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top HUD bar -->
+    <header class="hud-bar" aria-label="Game stats">
+      <div class="hud-cell">
+        <span class="hud-label">TURN</span>
+        <strong class="hud-value" id="turnValue">1</strong>
+      </div>
+      <div class="hud-cell hud-cell-center">
+        <span class="hud-label">BEST</span>
+        <strong class="hud-value" id="bestValue">0</strong>
+      </div>
+      <div class="hud-cell">
+        <span class="hud-label">COINS</span>
+        <strong class="hud-value hud-value-coin" id="coinsValue">0</strong>
+      </div>
+      <button class="settings-btn" id="settingsBtn" type="button" aria-label="Settings">⚙</button>
+    </header>
+
+    <!-- Main play area -->
+    <!-- Fix 3: add a visually-hidden h1 so the page has a level-one heading when the title screen is dismissed -->
+    <main class="play-stage" aria-label="BBTAN game board">
+      <h1 class="sr-only">BBTAN Classic</h1>
+      <div class="canvas-frame">
+        <canvas
+          id="gameCanvas"
+          width="440"
+          height="720"
+          tabindex="0"
+          aria-label="BBTAN playfield"
+        >
+          Your browser needs canvas support to play BBTAN.
+        </canvas>
+      </div>
+    </main>
+
+    <!-- Bottom controls -->
+    <footer class="controls-bar" aria-label="Game controls">
+      <button class="ctrl-btn ctrl-btn-gacha" id="gachaBtn" type="button" aria-label="Open gacha machine">
+        <span class="ctrl-icon">🎰</span>
+        <span class="ctrl-label">Gacha</span>
+      </button>
+      <button class="ctrl-btn ctrl-btn-speed" id="speedBtn" type="button" aria-label="Toggle fast forward">
+        <span class="ctrl-icon">⏩</span>
+        <span class="ctrl-label" id="speedLabel">1×</span>
+      </button>
+      <button class="ctrl-btn ctrl-btn-restart" id="restartBtn" type="button" aria-label="Restart run">
+        <span class="ctrl-icon">↻</span>
+        <span class="ctrl-label">Reset</span>
+      </button>
+    </footer>
+
+    <!-- Status readout for screen readers + subtle hint line -->
+    <p class="status-line" id="statusLine" role="status" aria-live="polite">
+      Drag anywhere on the board to aim. Release to launch.
+    </p>
+
+    <!-- ======================= TITLE SCREEN ======================= -->
+    <!-- Fix 2: title-content promoted to a <main> landmark so its children
+         (.title-eyebrow, h1, .title-sub, .title-tip) are inside a landmark.
+         We use role="region" + aria-label on the overlay div so it doesn't
+         conflict with the game's <main> element. -->
+    <div class="title-screen" id="titleScreen" aria-hidden="false" role="region" aria-label="Title screen">
+      <div class="title-orbs" aria-hidden="true">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+        <span class="orb orb-4"></span>
+        <span class="orb orb-5"></span>
+      </div>
+      <!-- Fix 2 (cont): wrap content in a <section> landmark -->
+      <section class="title-content" aria-label="Game introduction">
+        <p class="title-eyebrow">STUDY BREAK ARCADE</p>
+        <h1 class="title-logo">TAN Q</h1>
+        <p class="title-sub">Aim · Launch · Survive</p>
+        <button class="title-start" id="titleStartBtn" type="button">
+          <span class="title-start-inner">TAP TO START</span>
+        </button>
+        <p class="title-tip">Drag upward to aim. Release to launch.</p>
+      </section>
+    </div>
+
+    <!-- ======================= GACHA MODAL ======================= -->
+    <div class="modal-backdrop" id="gachaModal" aria-hidden="true">
+      <div class="modal-panel gacha-panel" role="dialog" aria-labelledby="gachaTitle" aria-modal="true">
+        <button class="modal-close" id="gachaCloseBtn" type="button" aria-label="Close">✕</button>
+        <h2 class="modal-title" id="gachaTitle">CAPSULE MACHINE</h2>
+        <p class="modal-sub">Spend coins to unlock new balls.</p>
+
+        <div class="gacha-machine" id="gachaMachine">
+          <div class="gacha-body">
+            <div class="gacha-globe">
+              <div class="gacha-capsules">
+                <span class="capsule capsule-a"></span>
+                <span class="capsule capsule-b"></span>
+                <span class="capsule capsule-c"></span>
+                <span class="capsule capsule-d"></span>
+                <span class="capsule capsule-e"></span>
+              </div>
+              <div class="gacha-dropping" id="gachaDropping" aria-hidden="true"></div>
+            </div>
+            <div class="gacha-neck"></div>
+            <div class="gacha-tray">
+              <div class="gacha-lever" id="gachaLever"></div>
+            </div>
+          </div>
+          <div class="gacha-reveal" id="gachaReveal" aria-hidden="true">
+            <div class="reveal-halo"></div>
+            <canvas class="reveal-ball" id="revealBallCanvas" width="160" height="160" aria-hidden="true"></canvas>
+            <p class="reveal-rarity" id="revealRarity">RARE</p>
+            <p class="reveal-name" id="revealName">Speedy</p>
+            <p class="reveal-blurb" id="revealBlurb">Description here.</p>
+            <p class="reveal-dup" id="revealDup" hidden>Duplicate — refunded 10 coins.</p>
+          </div>
+        </div>
+
+        <div class="gacha-actions">
+          <button class="modal-btn modal-btn-primary" id="gachaPullBtn" type="button">
+            <span class="btn-icon">💰</span>
+            <span class="btn-label">PULL · <strong id="gachaCostLabel">20</strong></span>
+          </button>
+          <button class="modal-btn" id="gachaAlbumBtn" type="button">
+            <span class="btn-icon">📖</span>
+            <span class="btn-label">Collection</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================= ALBUM MODAL ======================= -->
+    <div class="modal-backdrop" id="albumModal" aria-hidden="true">
+      <div class="modal-panel album-panel" role="dialog" aria-labelledby="albumTitle" aria-modal="true">
+        <button class="modal-close" id="albumCloseBtn" type="button" aria-label="Close">✕</button>
+        <h2 class="modal-title" id="albumTitle">BALL COLLECTION</h2>
+        <p class="modal-sub"><span id="albumProgress">1 / 10</span> unlocked — tap to equip</p>
+        <div class="album-grid" id="albumGrid"></div>
+        <div class="album-actions">
+          <button class="modal-btn" id="albumBackBtn" type="button">Back to Gacha</button>
+        </div>
+      </div>
+    </div>
+    <!-- ======================= SETTINGS MODAL ======================= -->
+    <div class="modal-backdrop" id="settingsModal" aria-hidden="true">
+      <div class="modal-panel settings-panel" role="dialog" aria-labelledby="settingsTitle" aria-modal="true">
+        <button class="modal-close" id="settingsCloseBtn" type="button" aria-label="Close">✕</button>
+        <h2 class="modal-title" id="settingsTitle">SETTINGS</h2>
+        <p class="modal-sub">Tune your arcade break</p>
+
+        <div class="settings-row">
+          <span class="settings-row-label" id="soundLabel">Sound</span>
+          <label class="toggle">
+            <input type="checkbox" id="soundToggle" checked aria-labelledby="soundLabel" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-row-label"><span id="assistFadeLabel">Aim assist fade</span><br/><small id="assistFadeHelp">Classic BBTAN difficulty</small></span>
+          <label class="toggle">
+            <input type="checkbox" id="assistFadeToggle" checked aria-labelledby="assistFadeLabel" aria-describedby="assistFadeHelp" />
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="settings-row settings-row-danger">
+          <span class="settings-row-label">Reset all progress<br/><small>Best, coins, unlocked balls</small></span>
+          <button class="modal-btn settings-danger-btn" id="resetProgressBtn" type="button">RESET</button>
+        </div>
+
+        <div class="settings-credits">
+          <p>BBTAN Classic · Study Break Arcade</p>
+          <p class="settings-credits-dim">A tribute to the original BBTAN by 111%.<br/>Built for the MSI course project.</p>
+        </div>
+      </div>
+    </div>
+    <!-- ============================================================ -->
+  </div>
+
+  <script src="js/game.js" type="module"></script>
+</body>
+</html>
