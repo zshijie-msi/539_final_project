@@ -40,23 +40,27 @@
           height="720"
           tabindex="0"
           aria-label="BBTAN playfield"
+          aria-describedby="gameInstructions"
         >
           Your browser needs canvas support to play BBTAN.
         </canvas>
       </div>
+      <p class="sr-only" id="gameInstructions">
+        Keyboard controls: use the left and right arrow keys to aim, press Space or Enter to launch, press F to change speed, press G to open the gacha screen, and press R to restart the run.
+      </p>
     </main>
 
     <!-- Bottom controls -->
     <footer class="controls-bar" aria-label="Game controls">
-      <button class="ctrl-btn ctrl-btn-gacha" id="gachaBtn" type="button" aria-label="Open gacha machine">
+      <button class="ctrl-btn ctrl-btn-gacha" id="gachaBtn" type="button" aria-label="Open gacha machine" aria-keyshortcuts="G">
         <span class="ctrl-icon">🎰</span>
         <span class="ctrl-label">Gacha</span>
       </button>
-      <button class="ctrl-btn ctrl-btn-speed" id="speedBtn" type="button" aria-label="Toggle fast forward">
+      <button class="ctrl-btn ctrl-btn-speed" id="speedBtn" type="button" aria-label="Toggle fast forward" aria-keyshortcuts="F">
         <span class="ctrl-icon">⏩</span>
         <span class="ctrl-label" id="speedLabel">1×</span>
       </button>
-      <button class="ctrl-btn ctrl-btn-restart" id="restartBtn" type="button" aria-label="Restart run">
+      <button class="ctrl-btn ctrl-btn-restart" id="restartBtn" type="button" aria-label="Restart run" aria-keyshortcuts="R">
         <span class="ctrl-icon">↻</span>
         <span class="ctrl-label">Reset</span>
       </button>
@@ -64,7 +68,7 @@
 
     <!-- Status readout for screen readers + subtle hint line -->
     <p class="status-line" id="statusLine" role="status" aria-live="polite">
-      Drag anywhere on the board to aim. Release to launch.
+      Drag anywhere on the board to aim, or use the keyboard controls.
     </p>
 
     <!-- ======================= TITLE SCREEN ======================= -->
@@ -161,6 +165,7 @@
         <div class="settings-row">
           <span class="settings-row-label" id="soundLabel">Sound</span>
           <label class="toggle">
+            <span class="sr-only">Sound</span>
             <input type="checkbox" id="soundToggle" checked aria-labelledby="soundLabel" />
             <span class="toggle-track"><span class="toggle-thumb"></span></span>
           </label>
@@ -169,6 +174,7 @@
         <div class="settings-row">
           <span class="settings-row-label"><span id="assistFadeLabel">Aim assist fade</span><br/><small id="assistFadeHelp">Classic BBTAN difficulty</small></span>
           <label class="toggle">
+            <span class="sr-only">Aim assist fade</span>
             <input type="checkbox" id="assistFadeToggle" checked aria-labelledby="assistFadeLabel" aria-describedby="assistFadeHelp" />
             <span class="toggle-track"><span class="toggle-thumb"></span></span>
           </label>

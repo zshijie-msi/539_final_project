@@ -15,6 +15,7 @@ import { state, STATUS, VIEW, PHYS, clamp, rad } from "./state.js";
 import { beginTurn } from "./physics.js";
 
 const MAX_ANG = rad(PHYS.maxAimDegFromVertical);
+const KEY_AIM_STEP = rad(3);
 
 let canvasEl = null;
 
@@ -30,6 +31,9 @@ export function attachInput(canvas) {
   // Prevent native touch scroll / pinch interfering.
   canvas.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
   canvas.addEventListener("touchmove",  (e) => e.preventDefault(), { passive: false });
+
+  // Keyboard aiming + launch support.
+  document.addEventListener("keydown", onKeyDown);
 }
 
 function pointerToCanvas(ev) {
@@ -78,4 +82,47 @@ function onUp(ev) {
 
 function onCancel() {
   state.aim.active = false;
+}
+
+
+function onKeyDown(ev) {
+  if (state.atTitle || state.overlay) return;
+
+  const key = ev.key;
+  const aimingKey = key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "a" || key === "A" || key === "d" || key === "D";
+  const launchKey = key === " " || key === "Spacebar" || key === "Enter";
+
+  if (aimingKey) ev.preventDefault();
+  if (launchKey) ev.preventDefault();
+
+  if (state.status !== STATUS.READY) return;
+
+  if (key === "ArrowLeft" || key === "a" || key === "A") {
+    state.aim.active = true;
+    state.aim.angle = clamp(state.aim.angle - KEY_AIM_STEP, -MAX_ANG, MAX_ANG);
+    state.aim.valid = true;
+    canvasEl?.focus();
+    return;
+  }
+
+  if (key === "ArrowRight" || key === "d" || key === "D") {
+    state.aim.active = true;
+    state.aim.angle = clamp(state.aim.angle + KEY_AIM_STEP, -MAX_ANG, MAX_ANG);
+    state.aim.valid = true;
+    canvasEl?.focus();
+    return;
+  }
+
+  if (key === "ArrowUp") {
+    state.aim.active = true;
+    state.aim.angle = 0;
+    state.aim.valid = true;
+    canvasEl?.focus();
+    return;
+  }
+
+  if (launchKey && state.aim.valid) {
+    state.aim.active = false;
+    beginTurn(state.aim.angle);
+  }
 }

@@ -21,6 +21,7 @@ function push(p) {
 
 // -------- Wall / generic spark (small bright dots, short life) ---------
 export function spawnBounceSpark(x, y, side) {
+  if (state.prefersReducedMotion) return;
   const count = 4;
   for (let i = 0; i < count; i++) {
     const a = Math.random() * Math.PI * 2;
@@ -40,6 +41,7 @@ export function spawnBounceSpark(x, y, side) {
 
 // -------- Brick-hit flash ring + damage puff (not destroyed) ----------
 export function spawnBrickFx(cx, cy, brick) {
+  if (state.prefersReducedMotion) return;
   const tier = tierForHp(Math.max(1, brick.hp + 1)); // color before the hit
   push({
     kind: "ring",
@@ -69,6 +71,7 @@ export function spawnBrickFx(cx, cy, brick) {
 
 // -------- Brick destroyed: shards explosion --------------------------
 export function spawnBrickShards(cx, cy, brick) {
+  if (state.prefersReducedMotion) return;
   const tier = tierForHp(1);
   const base = tierForHp(Math.max(1, brick.hpMax || 1));
   const count = 14;
@@ -102,6 +105,7 @@ export function spawnBrickShards(cx, cy, brick) {
 
 // -------- Launcher pulse on each ball spawn --------------------------
 export function spawnLaunchPulse(x, y) {
+  if (state.prefersReducedMotion) return;
   push({
     kind: "ring",
     x, y,
@@ -115,6 +119,7 @@ export function spawnLaunchPulse(x, y) {
 
 // -------- Collect burst (plus / coin / shuffle pickup) ---------------
 export function spawnCollectBurst(x, y, color) {
+  if (state.prefersReducedMotion) return;
   // Expanding ring + outward sparks in the collected color.
   push({
     kind: "ring",
@@ -147,6 +152,7 @@ import {
 } from "./state.js";
 
 export function spawnLaserBeam(axis, index) {
+  if (state.prefersReducedMotion) return;
   // axis: 'H' or 'V'. For 'H' we draw a horizontal beam across the row;
   // for 'V' a vertical one down the column.
   if (axis === "H") {
@@ -180,6 +186,7 @@ export function spawnLaserBeam(axis, index) {
 
 // -------- Screen shake trigger (used by game over) -------------------
 export function triggerScreenShake(duration, magnitude) {
+  if (state.prefersReducedMotion) return;
   state.shakeT = Math.max(state.shakeT, duration);
   state.shakeMag = Math.max(state.shakeMag, magnitude);
 }
@@ -187,6 +194,10 @@ export function triggerScreenShake(duration, magnitude) {
 // -------- Physics: integrate particles ------------------------------
 export function tickParticles(dt) {
   // Decay screen shake
+  if (state.prefersReducedMotion) {
+    state.shakeT = 0;
+    state.shakeMag = 0;
+  }
   if (state.shakeT > 0) {
     state.shakeT = Math.max(0, state.shakeT - dt);
     if (state.shakeT === 0) state.shakeMag = 0;

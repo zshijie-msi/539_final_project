@@ -41,6 +41,13 @@ const buttons = {
 };
 
 // ---------- Run lifecycle --------------------------------------------
+const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function syncReducedMotionPreference() {
+  state.prefersReducedMotion = reduceMotionQuery.matches;
+  document.body.classList.toggle("reduced-motion", state.prefersReducedMotion);
+}
+
 function resetRun() {
   state.turn = 1;
   // state.coins = 0;  // 保留coins不重置
@@ -64,7 +71,8 @@ function resetRun() {
   for (const p of gen.powerups) { p.fromRow = null; state.powerups.push(p); }
 
   syncHud();
-  flashStatus(`Ball: ${getBall(state.equippedBall).name}  ·  Drag upward to aim.`);
+  flashStatus(`Ball: ${getBall(state.equippedBall).name}  ·  Drag upward to aim, or use the keyboard.`);
+  canvas.focus();
 }
 
 // ---------- Settling phase (launcher glides to new x) -----------------
@@ -242,7 +250,7 @@ let statusTimer = 0;
 let flashActive = false;
 const DEFAULT_STATUS = () => {
   const bt = getBall(state.equippedBall);
-  return `Ball: ${bt.name}  ·  Drag upward to aim.`;
+  return `Ball: ${bt.name}  ·  Drag upward to aim, or use left and right arrows plus Space.`;
 };
 function flashStatus(msg) {
   hud.status.textContent = msg;
@@ -264,6 +272,38 @@ buttons.speed.addEventListener("click", () => {
 buttons.restart.addEventListener("click", () => {
   resetRun();
 });
+
+document.addEventListener("keydown", (ev) => {
+  if (state.overlay) return;
+
+  if (state.atTitle && (ev.key === "Enter" || ev.key === " ")) {
+    ev.preventDefault();
+    document.getElementById("titleStartBtn")?.click();
+    return;
+  }
+
+  if (state.atTitle) return;
+
+  if ((ev.key === "g" || ev.key === "G") && !state.overlay) {
+    ev.preventDefault();
+    openGacha();
+    return;
+  }
+
+  if (ev.key === "f" || ev.key === "F") {
+    ev.preventDefault();
+    buttons.speed.click();
+    return;
+  }
+
+  if (ev.key === "r" || ev.key === "R") {
+    ev.preventDefault();
+    resetRun();
+  }
+});
+
+reduceMotionQuery.addEventListener?.("change", syncReducedMotionPreference);
+syncReducedMotionPreference();
 
 // ---------- Boot ------------------------------------------------------
 initUI({ onHudNeedsSync: syncHud });

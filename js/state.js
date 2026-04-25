@@ -112,6 +112,7 @@ export const state = {
 
   // Settings (loaded by ui.js at boot)
   assistFade: true,             // shrink aim assist at higher turns
+  prefersReducedMotion: false,  // reflect prefers-reduced-motion media query
 
   // Modal overlay: "gacha" | "album" | "settings" | null.
   overlay: null,

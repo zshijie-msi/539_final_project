@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BBTAN Classic — Study Break Arcade
+   Study Break Arcade
    Theme: "Darkness with a spark of light"
    Deep indigo night + warm cream accents + soft jewel-tone bricks
    ========================================================================== */
@@ -982,4 +982,36 @@ body {
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
+}
+
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .title-orbs .orb,
+  .title-content,
+  .title-start-inner,
+  .modal-panel,
+  .gacha-body.shaking,
+  .capsule,
+  .gacha-dropping.active,
+  .gacha-lever.turning,
+  .reveal-halo,
+  .reveal-ball,
+  .album-card:hover {
+    animation: none !important;
+    transform: none !important;
+  }
 }

@@ -51,6 +51,7 @@ const resetProgressBtn = document.getElementById("resetProgressBtn");
 
 // External hooks injected by game.js
 let syncHudCb = () => {};
+let lastFocusEl = null;
 
 export function initUI({ onHudNeedsSync }) {
   syncHudCb = onHudNeedsSync;
@@ -130,31 +131,38 @@ export function initUI({ onHudNeedsSync }) {
 function closeTitle() {
   titleScreen.setAttribute("aria-hidden", "true");
   state.atTitle = false;
+  document.getElementById("gameCanvas")?.focus();
 }
 
 // --------- Settings ------------------------------------------------
 function openSettings() {
+  lastFocusEl = document.activeElement;
   state.overlay = "settings";
   settingsModal.setAttribute("aria-hidden", "false");
+  settingsCloseBtn.focus();
 }
 function closeSettings() {
   settingsModal.setAttribute("aria-hidden", "true");
   state.overlay = null;
+  lastFocusEl?.focus?.();
 }
 
 // --------- Gacha ----------------------------------------------------
 export function openGacha() {
+  lastFocusEl = document.activeElement;
   state.overlay = "gacha";
   gachaModal.setAttribute("aria-hidden", "false");
   gachaReveal.classList.remove("visible");
   gachaReveal.removeAttribute("data-rarity");
   gachaReveal.className = "gacha-reveal"; // reset rarity class
   updatePullButton();
+  gachaCloseBtn.focus();
 }
 
 export function closeGacha() {
   gachaModal.setAttribute("aria-hidden", "true");
   state.overlay = null;
+  lastFocusEl?.focus?.();
 }
 
 function updatePullButton() {
@@ -238,14 +246,17 @@ function showReveal(ball, isDup) {
 
 // --------- Album ----------------------------------------------------
 export function openAlbum() {
+  lastFocusEl = document.activeElement;
   state.overlay = "album";
   albumModal.setAttribute("aria-hidden", "false");
   buildAlbumGrid();
+  albumCloseBtn.focus();
 }
 
 export function closeAlbum() {
   albumModal.setAttribute("aria-hidden", "true");
   state.overlay = null;
+  lastFocusEl?.focus?.();
 }
 
 function buildAlbumGrid() {

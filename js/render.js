@@ -345,7 +345,7 @@ function raycastBricks(ox, oy, dx, dy) {
 function drawBalls() {
   const bt = getBall(state.equippedBall);
   for (const b of state.balls) {
-    if (b.trail && b.trail.length > 1) {
+    if (!state.prefersReducedMotion && b.trail && b.trail.length > 1) {
       ctx.save();
       for (let i = 0; i < b.trail.length; i++) {
         const t = b.trail[i];
@@ -597,7 +597,7 @@ function drawGameOverOverlay() {
 export function render(dt) {
   // Apply screen shake via canvas translate — cheaper than redrawing.
   let shakeX = 0, shakeY = 0;
-  if (state.shakeT > 0 && state.shakeMag > 0) {
+  if (!state.prefersReducedMotion && state.shakeT > 0 && state.shakeMag > 0) {
     const intensity = Math.min(1, state.shakeT * 3); // fade out last ~300ms
     shakeX = (Math.random() - 0.5) * state.shakeMag * 2 * intensity;
     shakeY = (Math.random() - 0.5) * state.shakeMag * 2 * intensity;
